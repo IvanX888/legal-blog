@@ -364,7 +364,6 @@ footer a:hover {{ text-decoration: underline; }}
 <p class="subtitle">Актуальные новости по <strong>семейному</strong> и <strong>трудовому</strong> праву РФ</p>
 <nav>
 <a href="https://серко.рф" target="_blank">← серко.рф</a>
-<a href="https://github.com/IvanX888/legal-blog" target="_blank">GitHub</a>
 </nav>
 <div class="header-info">
 <div class="time">🕐 Обновлено: {now} МСК</div>
@@ -379,6 +378,11 @@ footer a:hover {{ text-decoration: underline; }}
 
 {''.join(posts_html) if posts_html else '<div class="empty"><h3>Пока записей нет</h3><p>Бот собирает свежие новости каждый день в 9:00. Вы можете <a href="https://github.com/IvanX888/legal-blog/actions">запустить его вручную</a> или добавить статью в папку _posts.</p></div>'}
 
+<div style="background: linear-gradient(135deg, #e94560, #c44569); border-radius: 20px; padding: 30px; margin: 30px 0; text-align: center; color: white; box-shadow: 0 8px 30px rgba(233, 69, 96, 0.3);">
+<h3 style="margin-bottom: 10px; font-size: 22px;">💼 Нужна помощь юриста?</h3>
+<p style="margin-bottom: 20px; font-size: 16px; opacity: 0.95;">Составим исковое заявление, договор, консультацию — быстро и профессионально</p>
+<a href="https://серко.рф" target="_blank" style="display: inline-block; background: white; color: #e94560; padding: 14px 35px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 16px;">Заказать консультацию →</a>
+</div>
 <footer>
 <p>© Юридический дайджест | <a href="https://серко.рф" target="_blank">серко.рф</a> | Все материалы взяты из открытых источников</p>
 </footer>
