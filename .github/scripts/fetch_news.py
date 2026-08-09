@@ -58,10 +58,14 @@ def create_post(title, link, summary, source, category):
         print(f"SKIP (already exists): {title[:60]}")
         return
     
+    # Исправление: экранируем кавычки ДО f-строки
+    title_escaped = title.replace('"', '\\"')
+    now_time = datetime.now().strftime('%H:%M:%S')
+    
     content = f"""---
 layout: post
-title: "{title.replace('"', '\\"')}"
-date: {date} {datetime.now().strftime('%H:%M:%S')} +0300
+title: "{title_escaped}"
+date: {date} {now_time} +0300
 categories: {category}
 source: {source}
 link: {link}
