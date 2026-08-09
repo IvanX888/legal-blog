@@ -296,6 +296,13 @@ def fetch_feed(url, source_name):
                 if link:
                     full_text = fetch_full_text(link)
 
+                # Fallback: if parsing failed, use RSS summary as content
+                if not full_text.strip() and summary:
+                    clean_summary = re.sub(r'<[^>]+>', '', summary)
+                    clean_summary = unescape(clean_summary)
+                    full_text = clean_summary
+                    print(f"  ⚠️ Парсинг не сработал, используем RSS summary ({len(full_text)} символов)")
+
                 if create_post(title, link, summary, source_name, category, full_text):
                     found += 1
 
@@ -375,7 +382,6 @@ def generate_index():
                 else:
                     if stripped and not stripped.startswith('---'):
                         summary += line + ' '
-                        full_text += line + '\n'
 
         if date:
             dates.add(date)
