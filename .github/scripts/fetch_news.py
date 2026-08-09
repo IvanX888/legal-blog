@@ -5,28 +5,33 @@ import os
 from datetime import datetime
 from html import unescape
 
-# === НАСТРОЙКИ ===
+# === РАСШИРЕННЫЕ КЛЮЧЕВЫЕ СЛОВА ===
 KEYWORDS_FAMILY = [
     'семейное право', 'семейный кодекс', 'брачный договор', 'расторжение брака',
-    'развод', 'алименты', 'алимент', 'опека над', 'родительские права',
+    'развод', 'алименты', 'алимент', 'опека', 'родительские права',
     'лишение родительских прав', 'имущество супругов', 'раздел имущества',
-    'совместно нажитое', 'бракоразводный', 'сожительство', 'фактический брак',
-    'материнский капитал', 'дети от разных браков', 'отцовство', 'материнство',
+    'бракоразводный', 'сожительство', 'фактический брак',
+    'материнский капитал', 'отцовство', 'материнство',
     'установление отцовства', 'порядок общения с ребенком', 'место жительства ребенка',
-    'суррогатное материнство', 'усыновление', 'удочерение', 'брачный контракт'
+    'суррогатное материнство', 'усыновление', 'удочерение', 'брачный контракт',
+    'супружеская', 'супруг', 'супруга', 'дети', 'ребенок', 'несовершеннолетний',
+    'патронаж', 'попечительство', 'семейный конфликт', 'домашнее насилие',
+    'заявление на развод', 'развод в одностороннем', 'расторгнуть брак'
 ]
 
 KEYWORDS_LABOR = [
-    'трудовое право', 'трудовой кодекс', 'трудовой договор', 'увольнение по',
+    'трудовое право', 'трудовой кодекс', 'трудовой договор', 'увольнение',
     'необоснованное увольнение', 'восстановление на работе', 'трудовая инспекция',
-    'трудовая книжка', 'запись в трудовой', 'испытательный срок', 'оплачиваемый отпуск',
-    'отпуск без сохранения', 'декретный отпуск', 'отпуск по уходу за ребенком',
+    'трудовая книжка', 'испытательный срок', 'отпуск', 'декрет',
     'переработка', 'сверхурочные', 'задержка зарплаты', 'зарплатная задолженность',
-    'дисциплинарное взыскание', 'прогул', 'прогул без уважительной', 'штраф работодателя',
-    'командировочные', 'больничный лист', 'листок нетрудоспособности', 'профзаболевание',
+    'дисциплинарное взыскание', 'прогул', 'штраф работодателя',
+    'командировочные', 'больничный', 'профзаболевание',
     'сокращение штата', 'сокращение численности', 'выплата при сокращении',
     'коллективный договор', 'профсоюз', 'забастовка', 'трудовой спор',
-    'выплаты при ликвидации', 'охрана труда', 'незаконное увольнение'
+    'выплаты при ликвидации', 'охрана труда', 'незаконное увольнение',
+    'работник', 'работодатель', 'зарплата', 'заработная плата', 'труд',
+    'кадровый', 'кадры', 'трудовые отношения', 'трудовая дисциплина',
+    'восстановление на работе', 'вынужденный прогул', 'компенсация при увольнении'
 ]
 
 FEEDS = [
@@ -67,28 +72,29 @@ def already_exists(link):
     return False
 
 def truncate(text, length=300):
-    """Обрезает текст до N символов, добавляет многоточие"""
     if not text:
         return ''
-    text = re.sub(r'<[^>]+>', '', text)  # убираем HTML-теги
+    text = re.sub(r'<[^>]+>', '', text)
     text = unescape(text)
     if len(text) <= length:
         return text
     return text[:length].rsplit(' ', 1)[0] + '...'
 
-def create_post(title, link, summary, source, category):
+def create_post(title, link, summary, source, category, is_fallback=False):
     date = datetime.now().strftime('%Y-%m-%d')
     time = datetime.now().strftime('%H-%M-%S')
     slug = slugify(title) or 'news'
     filename = f"{POSTS_DIR}/{date}-{time}-{slug}.md"
     
     if already_exists(link):
-        print(f"SKIP: {title[:60]}")
-        return
+        print(f"  SKIP (exists): {title[:60]}")
+        return False
     
     title_escaped = title.replace('"', '\\"')
     now_time = datetime.now().strftime('%H:%M:%S')
-    short_summary = truncate(summary, 400)
+    short_summary = truncate(summary, 350)
+    
+    fallback_note = '\n\n> 💡 Эта новость добавлена как общая (не по ключевым словам)' if is_fallback else ''
     
     content = f"""---
 layout: post
@@ -101,11 +107,12 @@ link: {link}
 
 **Источник:** [{source}]({link})
 
-{short_summary}
+{short_summary}{fallback_note}
 """
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(content)
-    print(f"CREATED: {filename}")
+    print(f"  CREATED: {category} | {title[:60]}")
+    return True
 
 def fetch_feed(url, source_name):
     try:
@@ -113,28 +120,42 @@ def fetch_feed(url, source_name):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         }
+        print(f"\n📡 {source_name}...")
         resp = requests.get(url, headers=headers, timeout=20)
         resp.raise_for_status()
         feed = feedparser.parse(resp.content)
         
+        if not feed.entries:
+            print(f"  ⚠️  Нет записей в RSS")
+            return
+        
+        print(f"  Всего записей в RSS: {len(feed.entries)}")
+        
         found = 0
-        for entry in feed.entries[:15]:  # проверяем больше записей
+        fallback_count = 0
+        
+        for i, entry in enumerate(feed.entries[:20]):
             title = entry.get('title', 'Без названия')
             link = entry.get('link', '')
             summary = entry.get('summary', entry.get('description', ''))
             text = f"{title} {summary}"
             
             if has_keywords(text, KEYWORDS_FAMILY):
-                create_post(title, link, summary, source_name, 'семейное-право')
-                found += 1
+                if create_post(title, link, summary, source_name, 'семейное-право'):
+                    found += 1
             elif has_keywords(text, KEYWORDS_LABOR):
-                create_post(title, link, summary, source_name, 'трудовое-право')
-                found += 1
+                if create_post(title, link, summary, source_name, 'трудовое-право'):
+                    found += 1
             else:
-                print(f"SKIP: {source_name} | {title[:50]}")
-        print(f"  {source_name}: найдено {found} подходящих новостей")
+                # Fallback: берем первые 2 новости без фильтра
+                if fallback_count < 2 and i < 5:
+                    if create_post(title, link, summary, source_name, 'общие-новости', is_fallback=True):
+                        fallback_count += 1
+        
+        print(f"  ✅ Найдено по теме: {found}, добавлено общих: {fallback_count}")
+        
     except Exception as e:
-        print(f"ERROR {source_name}: {e}")
+        print(f"  ❌ ОШИБКА: {e}")
 
 def get_weather():
     try:
@@ -145,28 +166,6 @@ def get_weather():
         return f"Москва {temp}°C"
     except Exception:
         return "Москва --°C"
-
-def get_weather_icon(code):
-    """Возвращает emoji по коду погоды"""
-    if code is None:
-        return "🌡️"
-    if code <= 1:
-        return "☀️"
-    elif code <= 3:
-        return "⛅"
-    elif code <= 48:
-        return "🌫️"
-    elif code <= 67:
-        return "🌧️"
-    elif code <= 77:
-        return "🌨️"
-    elif code <= 82:
-        return "🌦️"
-    elif code <= 86:
-        return "❄️"
-    elif code <= 99:
-        return "⛈️"
-    return "🌡️"
 
 def generate_index():
     posts = []
@@ -212,14 +211,22 @@ def generate_index():
             else:
                 if line.startswith('**Источник:**'):
                     continue
+                if line.startswith('> 💡'):
+                    continue
                 if line.strip() and not line.startswith('---'):
                     summary += line + ' '
         
         if date:
             dates.add(date)
         
-        cat_class = 'cat-family' if 'семейное' in category else 'cat-labor'
-        short_text = truncate(summary.strip(), 280)
+        if 'семейное' in category:
+            cat_class = 'cat-family'
+        elif 'трудовое' in category:
+            cat_class = 'cat-labor'
+        else:
+            cat_class = 'cat-general'
+        
+        short_text = truncate(summary.strip(), 300)
         
         posts.append({
             'title': title,
@@ -231,7 +238,6 @@ def generate_index():
             'summary': short_text
         })
     
-    # Генерируем HTML постов
     posts_html = []
     for post in posts:
         source_link = f'<a href="{post["link"]}" target="_blank" rel="noopener" class="read-more">Читать полностью →</a>' if post['link'] else ''
@@ -246,9 +252,8 @@ def generate_index():
 {source_link}
 </article>''')
     
-    # Календарь (уникальные даты)
     calendar_html = ''
-    for d in sorted(dates, reverse=True)[:10]:
+    for d in sorted(dates, reverse=True)[:15]:
         calendar_html += f'<a href="#date-{d}" class="cal-date">{d}</a>'
     
     now = datetime.now().strftime('%d.%m.%Y %H:%M')
@@ -287,13 +292,15 @@ nav a:hover {{ opacity: 1; text-decoration: underline; }}
 .cal-date:hover {{ background: #e94560; transform: scale(1.05); }}
 .post {{ background: #fff; border-radius: 20px; padding: 30px; margin-bottom: 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); transition: all 0.3s; border-left: 5px solid transparent; }}
 .post:hover {{ transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.2); }}
-.post:nth-child(odd) {{ border-left-color: #e94560; }}
-.post:nth-child(even) {{ border-left-color: #533483; }}
+.post:nth-child(3n+1) {{ border-left-color: #e94560; }}
+.post:nth-child(3n+2) {{ border-left-color: #533483; }}
+.post:nth-child(3n+3) {{ border-left-color: #0f3460; }}
 .post h2 {{ font-size: 22px; color: #1a1a2e; margin-bottom: 15px; line-height: 1.4; }}
 .meta {{ display: flex; gap: 15px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; font-size: 14px; color: #666; }}
 .badge {{ padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }}
 .cat-family {{ background: #fce4ec; color: #c2185b; }}
 .cat-labor {{ background: #e8f5e9; color: #2e7d32; }}
+.cat-general {{ background: #fff3e0; color: #e65100; }}
 .excerpt {{ color: #555; line-height: 1.7; font-size: 15px; margin-bottom: 15px; }}
 .read-more {{ display: inline-flex; align-items: center; gap: 5px; background: linear-gradient(135deg, #e94560, #c44569); color: #fff; padding: 10px 24px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s; box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3); }}
 .read-more:hover {{ transform: translateX(5px); box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4); }}
@@ -342,11 +349,11 @@ footer a:hover {{ text-decoration: underline; }}
     
     with open('index.html', 'w', encoding='utf-8') as f:
         f.write(html)
-    print("Generated index.html")
+    print("\n✅ index.html сгенерирован")
 
 if __name__ == '__main__':
-    print("Starting news fetch...")
+    print("🚀 Запуск сбора новостей...")
     for url, name in FEEDS:
         fetch_feed(url, name)
     generate_index()
-    print("Done!")
+    print("\n🎉 Готово!")
