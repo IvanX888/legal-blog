@@ -375,6 +375,7 @@ def generate_index():
                 else:
                     if stripped and not stripped.startswith('---'):
                         summary += line + ' '
+                        full_text += line + '\n'
 
         if date:
             dates.add(date)
