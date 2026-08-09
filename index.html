@@ -5,28 +5,76 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Юридический дайджест</title>
 <style>
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f5f5f5; color: #333; }
-h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
-.post { background: white; padding: 20px; margin: 15px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.post h2 { margin-top: 0; font-size: 18px; color: #2c3e50; }
-.meta { color: #666; font-size: 14px; margin-bottom: 10px; }
-.cat { background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
-a { color: #3498db; text-decoration: none; }
-a:hover { text-decoration: underline; }
-.empty { text-align: center; color: #999; padding: 40px; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+.container { max-width: 900px; margin: 0 auto; padding: 20px; }
+header { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 16px; padding: 30px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+.header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+h1 { font-size: 28px; color: #2c3e50; display: flex; align-items: center; gap: 10px; }
+.subtitle { color: #666; margin-top: 8px; font-size: 15px; }
+.weather { display: flex; gap: 15px; }
+.weather span { background: #e3f2fd; color: #1565c0; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+nav { margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
+nav a { color: #667eea; text-decoration: none; font-weight: 500; margin-right: 20px; }
+nav a:hover { text-decoration: underline; }
+.post { background: white; border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: transform 0.2s; }
+.post:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+.post h2 { font-size: 20px; color: #2c3e50; margin-bottom: 12px; line-height: 1.4; }
+.meta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; font-size: 13px; color: #666; }
+.badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+.cat-family { background: #fce4ec; color: #c2185b; }
+.cat-labor { background: #e8f5e9; color: #388e3c; }
+.read-more { display: inline-block; margin-top: 10px; color: #667eea; text-decoration: none; font-weight: 500; }
+.read-more:hover { text-decoration: underline; }
+.empty { background: white; border-radius: 16px; padding: 60px 20px; text-align: center; color: #999; }
+footer { text-align: center; padding: 30px; color: rgba(255,255,255,0.8); font-size: 14px; }
+footer a { color: white; font-weight: 600; }
+@media (max-width: 600px) {
+  .header-top { flex-direction: column; align-items: flex-start; }
+  .post h2 { font-size: 17px; }
+}
 </style>
 </head>
 <body>
+<div class="container">
+<header>
+<div class="header-top">
+<div>
 <h1>⚖️ Юридический дайджест</h1>
-<p>Автоматическая подборка новостей по <strong>семейному</strong> и <strong>трудовому</strong> праву РФ.</p>
-<div class="post">
-<h2>Тестовая статья про алименты</h2>
-<div class="meta">📅 2026-08-09 | 🏷️ <span class="cat">семейное-право</span></div>
+<p class="subtitle">Подборка актуальных новостей по <strong>семейному</strong> и <strong>трудовому</strong> праву РФ</p>
+</div>
+<div class="weather">
+<span>🌤️ Минск 23.3°C</span>
+<span>🌤️ Москва 22.4°C</span>
+</div>
+</div>
+<nav>
+<a href="https://серко.рф" target="_blank">← На главный сайт серко.рф</a>
+<a href="https://github.com/IvanX888/legal-blog" target="_blank">GitHub</a>
+</nav>
+</header>
 
-</div><div class="post">
+<article class="post">
+<h2>Тестовая статья про алименты</h2>
+<div class="meta">
+<span class="date">📅 2026-08-09</span>
+<span class="badge cat-family">семейное-право</span>
+<span class="source">📰 </span>
+</div>
+
+</article><article class="post">
 <h2>Врач Азаров рассказал, что делать при внезапной боли в груди на отдыхе</h2>
-<div class="meta">📅 2026-08-09 | 🏷️ <span class="cat">трудовое-право</span></div>
-<p><a href="https://rg.ru/2026/08/09/vrach-azarov-rasskazal-chto-delat-pri-vnezapnoj-boli-v-grudi-na-otdyhe.html" target="_blank">Читать источник →</a></p>
+<div class="meta">
+<span class="date">📅 2026-08-09</span>
+<span class="badge cat-labor">трудовое-право</span>
+<span class="source">📰 Российская газета</span>
+</div>
+<a href="https://rg.ru/2026/08/09/vrach-azarov-rasskazal-chto-delat-pri-vnezapnoj-boli-v-grudi-na-otdyhe.html" target="_blank" class="read-more">Читать источник →</a>
+</article>
+
+<footer>
+<p>© Юридический дайджест | <a href="https://серко.рф" target="_blank">серко.рф</a></p>
+</footer>
 </div>
 </body>
 </html>
