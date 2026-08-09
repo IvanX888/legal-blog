@@ -5,8 +5,23 @@ import os
 from datetime import datetime
 from html import unescape
 
+# === КАЧЕСТВЕННЫЕ ИСТОЧНИКИ ===
+FEEDS = [
+    ('https://rg.ru/xml/index.xml', 'Российская газета'),
+    ('https://duma.gov.ru/news/rss/', 'Госдума'),
+    ('https://www.garant.ru/news/rss/', 'ГАРАНТ'),
+    ('https://pravo.ru/rss/news/', 'Право.ру'),
+    ('https://www.rbc.ru/rss/', 'РБК'),
+    ('https://www.kommersant.ru/rss/doc.xml', 'Коммерсантъ'),
+    ('https://tass.ru/rss/v2.xml', 'ТАСС'),
+    ('https://www.interfax.ru/rss.asp', 'Интерфакс'),
+    ('https://ria.ru/export/rss2/archive/index.xml', 'РИА Новости'),
+    ('https://iz.ru/xml/rss/all.xml', 'Известия'),
+]
+
 # === РАСШИРЕННЫЕ КЛЮЧЕВЫЕ СЛОВА ===
 KEYWORDS_FAMILY = [
+    # Основные
     'семейное право', 'семейный кодекс', 'брачный договор', 'расторжение брака',
     'развод', 'алименты', 'алимент', 'опека', 'родительские права',
     'лишение родительских прав', 'имущество супругов', 'раздел имущества',
@@ -14,12 +29,21 @@ KEYWORDS_FAMILY = [
     'материнский капитал', 'отцовство', 'материнство',
     'установление отцовства', 'порядок общения с ребенком', 'место жительства ребенка',
     'суррогатное материнство', 'усыновление', 'удочерение', 'брачный контракт',
+    # Расширенные
     'супружеская', 'супруг', 'супруга', 'дети', 'ребенок', 'несовершеннолетний',
     'патронаж', 'попечительство', 'семейный конфликт', 'домашнее насилие',
-    'заявление на развод', 'развод в одностороннем', 'расторгнуть брак'
+    'заявление на развод', 'развод в одностороннем', 'расторгнуть брак',
+    'совместная собственность', 'личная собственность', 'долги супругов',
+    'содержание ребенка', 'содержание супруги', 'индексация алиментов',
+    'неуплата алиментов', 'задолженность по алиментам', 'лишение родительских',
+    'восстановление в родительских правах', 'определение отцовства',
+    'оспаривание отцовства', 'брак с иностранцем', 'развод с иностранцем',
+    'семейные споры', 'семейный адвокат', 'юрист по разводу',
+    'закон о семье', 'статья семейного кодекса', 'ск ск рф',
 ]
 
 KEYWORDS_LABOR = [
+    # Основные
     'трудовое право', 'трудовой кодекс', 'трудовой договор', 'увольнение',
     'необоснованное увольнение', 'восстановление на работе', 'трудовая инспекция',
     'трудовая книжка', 'испытательный срок', 'отпуск', 'декрет',
@@ -28,25 +52,21 @@ KEYWORDS_LABOR = [
     'командировочные', 'больничный', 'профзаболевание',
     'сокращение штата', 'сокращение численности', 'выплата при сокращении',
     'коллективный договор', 'профсоюз', 'забастовка', 'трудовой спор',
-    'выплаты при ликвидации', 'охрана труда', 'незаконное увольнение',
+    # Расширенные
     'работник', 'работодатель', 'зарплата', 'заработная плата', 'труд',
     'кадровый', 'кадры', 'трудовые отношения', 'трудовая дисциплина',
-    'восстановление на работе', 'вынужденный прогул', 'компенсация при увольнении'
-]
-
-FEEDS = [
-    ('https://www.garant.ru/news/rss/', 'ГАРАНТ'),
-    ('https://rg.ru/xml/index.xml', 'Российская газета'),
-    ('https://duma.gov.ru/news/rss/', 'Госдума'),
-    ('https://www.kommersant.ru/rss/doc.xml', 'Коммерсантъ'),
-    ('https://pravo.ru/rss/news/', 'Право.ру'),
-    ('https://www.rbc.ru/rss/', 'РБК'),
-    ('https://tass.ru/rss/v2.xml', 'ТАСС'),
-    ('https://www.vedomosti.ru/rss/news', 'Ведомости'),
-    ('https://www.interfax.ru/rss.asp', 'Интерфакс'),
-    ('https://iz.ru/xml/rss/all.xml', 'Известия'),
-    ('https://ria.ru/export/rss2/archive/index.xml', 'РИА Новости'),
-    ('https://lenta.ru/rss/news', 'Лента.ру'),
+    'восстановление на работе', 'вынужденный прогул', 'компенсация при увольнении',
+    'стажировка', 'подработка', 'совместительство', 'внешний совместитель',
+    'дистанционная работа', 'удаленная работа', 'гибкий график',
+    'трудовая миграция', 'патент', 'разрешение на работу',
+    'охрана труда', 'производственная травма', 'несчастный случай на производстве',
+    'аттестация рабочих мест', 'спецоценка условий труда', 'соут',
+    'трудовая инспекция проверка', 'штраф гибдд', 'штраф суд',
+    'иск о восстановлении', 'трудовой иск', 'трудовой суд',
+    'статья тк рф', 'статья трудового кодекса', 'тк рф',
+    'закон о занятости', 'центр занятости', 'биржа труда',
+    'пособие по безработице', 'пособие по беременности', 'пособие по уходу',
+    'страховые взносы', 'пенсионные взносы', 'фсс', 'фонд социального страхования',
 ]
 
 POSTS_DIR = '_posts'
@@ -80,7 +100,29 @@ def truncate(text, length=300):
         return text
     return text[:length].rsplit(' ', 1)[0] + '...'
 
-def create_post(title, link, summary, source, category, is_fallback=False):
+def parse_date(entry):
+    """Парсит дату из RSS-записи"""
+    for field in ['published_parsed', 'updated_parsed', 'created_parsed']:
+        if hasattr(entry, field) and getattr(entry, field):
+            return datetime(*getattr(entry, field)[:6])
+    # Пробуем из строки
+    for field in ['published', 'updated', 'date']:
+        if hasattr(entry, field) and getattr(entry, field):
+            try:
+                return datetime.strptime(getattr(entry, field)[:10], '%Y-%m-%d')
+            except:
+                pass
+    return datetime.now()
+
+def is_recent(entry_date, days=30):
+    """Проверяет, что новость не старше N дней"""
+    try:
+        delta = datetime.now() - entry_date
+        return delta.days <= days
+    except:
+        return True
+
+def create_post(title, link, summary, source, category):
     date = datetime.now().strftime('%Y-%m-%d')
     time = datetime.now().strftime('%H-%M-%S')
     slug = slugify(title) or 'news'
@@ -94,8 +136,6 @@ def create_post(title, link, summary, source, category, is_fallback=False):
     now_time = datetime.now().strftime('%H:%M:%S')
     short_summary = truncate(summary, 350)
     
-    fallback_note = '\n\n> 💡 Эта новость добавлена как общая (не по ключевым словам)' if is_fallback else ''
-    
     content = f"""---
 layout: post
 title: "{title_escaped}"
@@ -107,17 +147,17 @@ link: {link}
 
 **Источник:** [{source}]({link})
 
-{short_summary}{fallback_note}
+{short_summary}
 """
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(content)
-    print(f"  CREATED: {category} | {title[:60]}")
+    print(f"  CREATED [{category}]: {title[:60]}")
     return True
 
 def fetch_feed(url, source_name):
     try:
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         }
         print(f"\n📡 {source_name}...")
@@ -126,18 +166,25 @@ def fetch_feed(url, source_name):
         feed = feedparser.parse(resp.content)
         
         if not feed.entries:
-            print(f"  ⚠️  Нет записей в RSS")
+            print(f"  ⚠️  RSS пуст")
             return
         
-        print(f"  Всего записей в RSS: {len(feed.entries)}")
+        print(f"  Записей в RSS: {len(feed.entries)}")
         
         found = 0
-        fallback_count = 0
+        checked = 0
         
-        for i, entry in enumerate(feed.entries[:20]):
+        for entry in feed.entries[:25]:
             title = entry.get('title', 'Без названия')
             link = entry.get('link', '')
             summary = entry.get('summary', entry.get('description', ''))
+            
+            # Проверяем дату - только свежие новости
+            entry_date = parse_date(entry)
+            if not is_recent(entry_date, days=60):
+                continue
+            
+            checked += 1
             text = f"{title} {summary}"
             
             if has_keywords(text, KEYWORDS_FAMILY):
@@ -146,13 +193,8 @@ def fetch_feed(url, source_name):
             elif has_keywords(text, KEYWORDS_LABOR):
                 if create_post(title, link, summary, source_name, 'трудовое-право'):
                     found += 1
-            else:
-                # Fallback: берем первые 2 новости без фильтра
-                if fallback_count < 2 and i < 5:
-                    if create_post(title, link, summary, source_name, 'общие-новости', is_fallback=True):
-                        fallback_count += 1
         
-        print(f"  ✅ Найдено по теме: {found}, добавлено общих: {fallback_count}")
+        print(f"  ✅ Проверено свежих: {checked}, найдено по теме: {found}")
         
     except Exception as e:
         print(f"  ❌ ОШИБКА: {e}")
@@ -211,8 +253,6 @@ def generate_index():
             else:
                 if line.startswith('**Источник:**'):
                     continue
-                if line.startswith('> 💡'):
-                    continue
                 if line.strip() and not line.startswith('---'):
                     summary += line + ' '
         
@@ -240,7 +280,7 @@ def generate_index():
     
     posts_html = []
     for post in posts:
-        source_link = f'<a href="{post["link"]}" target="_blank" rel="noopener" class="read-more">Читать полностью →</a>' if post['link'] else ''
+        source_link = f'<a href="{post["link"]}" target="_blank" rel="noopener" class="read-more">Читать источник →</a>' if post['link'] else ''
         posts_html.append(f'''<article class="post">
 <h2>{post["title"]}</h2>
 <div class="meta">
@@ -300,7 +340,6 @@ nav a:hover {{ opacity: 1; text-decoration: underline; }}
 .badge {{ padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }}
 .cat-family {{ background: #fce4ec; color: #c2185b; }}
 .cat-labor {{ background: #e8f5e9; color: #2e7d32; }}
-.cat-general {{ background: #fff3e0; color: #e65100; }}
 .excerpt {{ color: #555; line-height: 1.7; font-size: 15px; margin-bottom: 15px; }}
 .read-more {{ display: inline-flex; align-items: center; gap: 5px; background: linear-gradient(135deg, #e94560, #c44569); color: #fff; padding: 10px 24px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s; box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3); }}
 .read-more:hover {{ transform: translateX(5px); box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4); }}
@@ -338,7 +377,7 @@ footer a:hover {{ text-decoration: underline; }}
 {calendar_html if calendar_html else '<span style="color:rgba(255,255,255,0.6)">Пока нет архива</span>'}
 </div>
 
-{''.join(posts_html) if posts_html else '<div class="empty"><h3>Пока записей нет</h3><p>Бот собирает новости каждый день в 9:00. Вы можете <a href="https://github.com/IvanX888/legal-blog/actions">запустить его вручную</a> или добавить статью в папку _posts.</p></div>'}
+{''.join(posts_html) if posts_html else '<div class="empty"><h3>Пока записей нет</h3><p>Бот собирает свежие новости каждый день в 9:00. Вы можете <a href="https://github.com/IvanX888/legal-blog/actions">запустить его вручную</a> или добавить статью в папку _posts.</p></div>'}
 
 <footer>
 <p>© Юридический дайджест | <a href="https://серко.рф" target="_blank">серко.рф</a> | Все материалы взяты из открытых источников</p>
@@ -353,6 +392,7 @@ footer a:hover {{ text-decoration: underline; }}
 
 if __name__ == '__main__':
     print("🚀 Запуск сбора новостей...")
+    print("📋 Источники: РГ, Госдума, ГАРАНТ, Право.ру, РБК, Коммерсантъ, ТАСС, Интерфакс, РИА, Известия")
     for url, name in FEEDS:
         fetch_feed(url, name)
     generate_index()
