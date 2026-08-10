@@ -11,14 +11,16 @@ POSTS_DIR = '_posts'
 os.makedirs(POSTS_DIR, exist_ok=True)
 
 STOPWORDS = [
-    'всу', 'украина', 'спецоперация', 'армия', 'беспилотник', 'ракетный удар',
-    'футбол', 'хоккей', 'теннис', 'матч', 'гол', 'чемпионат',
-    'биткоин', 'биржа', 'курс доллара',
-    'авария на трассе', 'убийство', 'пожар',
-    'нато', 'евросоюз', 'санкции',
-    'мем', 'мемы', 'фото', 'премьер', 'санчес', 'шутка', 'юмор', 'вирусный',
-    'ретушь', 'голливуд', 'кино', 'сериал', 'знаменитост', 'шоу', 'концерт',
-    'блогер', 'инфлюенсер', 'тикток', 'instagram',
+    'трамп', 'иран', 'патриот', 'ракет', 'военн', 'политик', 'президент',
+    'байден', 'путин', 'зеленск', 'герои', 'армении', 'зенит', 'рпл',
+    'чемпион', 'спартак', 'динамо', 'футбол', 'хоккей', 'теннис', 'матч',
+    'гол', 'счет', 'одолевшие', 'передаче', 'лиценз', 'всу', 'украина',
+    'спецоперация', 'армия', 'беспилотник', 'ракетный удар', 'убийство',
+    'пожар', 'нато', 'евросоюз', 'санкции', 'мем', 'мемы', 'фото',
+    'премьер', 'санчес', 'шутка', 'юмор', 'вирусный', 'ретушь',
+    'голливуд', 'кино', 'сериал', 'знаменитост', 'шоу', 'концерт',
+    'блогер', 'инфлюенсер', 'тикток', 'instagram', 'биткоин', 'биржа',
+    'курс доллара', 'авария на трассе', 'дтп',
 ]
 
 KEYWORDS = [
@@ -32,11 +34,9 @@ KEYWORDS = [
 ]
 
 RSS_URLS = [
-    'https://www.rbc.ru/legal/rss/feed',
-    'https://www.kommersant.ru/doc/rss?type=100',
-    'https://tass.ru/rss/v2.xml?sections=NDczMw%3D%3D',
     'https://rg.ru/rss/index.xml',
-    'https://lenta.ru/rss/news',
+    'https://pravo.ru/news/rss/',
+    'https://www.garant.ru/news/rss/',
 ]
 
 
@@ -64,16 +64,15 @@ def truncate(text, length=300):
 def text_to_html(text):
     if not text or not text.strip():
         return '<p class="no-fulltext">Полный текст недоступен</p>'
-    paragraphs = text.split('\n')
-    html_parts = []
-    for p in paragraphs:
+    parts = []
+    for p in text.split('\n'):
         p = p.strip()
         if p:
             p = html_module.escape(p)
             p = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', p)
             p = re.sub(r'\*(.+?)\*', r'<em>\1</em>', p)
-            html_parts.append('<p>' + p + '</p>')
-    return '\n'.join(html_parts) if html_parts else '<p class="no-fulltext">Полный текст недоступен</p>'
+            parts.append('<p>' + p + '</p>')
+    return '\n'.join(parts) if parts else '<p class="no-fulltext">Полный текст недоступен</p>'
 
 
 def get_weather():
@@ -94,19 +93,18 @@ def fetch_full_text(url):
         resp.encoding = resp.apparent_encoding or 'utf-8'
         html = resp.text
 
-        # Удаляем скрипты, стили, навигацию, футеры, сайдбары
         html = re.sub(r'<(script|style|noscript|iframe|nav|aside|footer|header|form|button|select|textarea)[^>]*>.*?</\1>', '', html, flags=re.DOTALL | re.IGNORECASE)
 
-        # Ищем основной контент
         content = ''
-        for pattern in [
+        patterns = [
             r'<article[^>]*>(.*?)</article>',
-            r'<div[^>]*\bclass\s*=\s*["\'][^"\']*(?:content|article|text|body|main|entry|post|news-text|story-body)[^"\']*["\'][^>]*>(.*?)</div>',
             r'<main[^>]*>(.*?)</main>',
+            r'<div[^>]*\bclass\s*=\s*["\'][^"\']*(?:content|article|text|body|main|entry|post|news-text|story-body)[^"\']*["\'][^>]*>(.*?)</div>',
             r'<div[^>]*\brole\s*=\s*["\']main["\'][^>]*>(.*?)</div>',
             r'<section[^>]*\bclass\s*=\s*["\'][^"\']*(?:content|article|text)[^"\']*["\'][^>]*>(.*?)</section>',
-        ]:
-            m = re.search(pattern, html, re.DOTALL | re.IGNORECASE)
+        ]
+        for pat in patterns:
+            m = re.search(pat, html, re.DOTALL | re.IGNORECASE)
             if m:
                 content = m.group(1)
                 break
@@ -119,20 +117,17 @@ def fetch_full_text(url):
         if not content:
             return ''
 
-        # Удаляем мусорные блоки по классам/id
-        content = re.sub(r'<div[^>]*\bclass\s*=\s*["\'][^"\']*(?:share|social|related|tags|comments|author|advert|sidebar|menu|subscribe|newsletter|popup|modal|cookie|banner|promo|recommend|read-more|pagination|toolbar|action-bar|vote|rating|breadcrumbs)[^"\']*["\'][^>]*>.*?</div>', '', content, flags=re.DOTALL | re.IGNORECASE)
+        garbage_classes = r'(?:share|social|related|tags|comments|author|advert|sidebar|menu|subscribe|newsletter|popup|modal|cookie|banner|promo|recommend|read-more|pagination|toolbar|action-bar|vote|rating|breadcrumbs)'
+        content = re.sub(r'<div[^>]*\bclass\s*=\s*["\'][^"\']*' + garbage_classes + r'[^"\']*["\'][^>]*>.*?</div>', '', content, flags=re.DOTALL | re.IGNORECASE)
         content = re.sub(r'<ul[^>]*\bclass\s*=\s*["\'][^"\']*(?:share|social|tags|menu|nav)[^"\']*["\'][^>]*>.*?</ul>', '', content, flags=re.DOTALL | re.IGNORECASE)
         content = re.sub(r'<span[^>]*\bclass\s*=\s*["\'][^"\']*(?:share|social|tag|label|badge)[^"\']*["\'][^>]*>.*?</span>', '', content, flags=re.DOTALL | re.IGNORECASE)
 
         text = clean_html(content)
 
-        # Проверка на мусорные фразы
-        garbage_phrases = ['поделиться', 'читайте также', 'рекомендуем', 'похожие статьи', 'комментарии', 'оставить комментарий', 'войдите', 'зарегистрируйтесь', 'подпишитесь', 'рассылка', 'копирайт', 'все права защищены', 'выделить главное', 'телеканал', 'доступен в пакетах']
+        garbage = ['поделиться', 'читайте также', 'рекомендуем', 'похожие статьи', 'комментарии', 'оставить комментарий', 'войдите', 'зарегистрируйтесь', 'подпишитесь', 'рассылка', 'копирайт', 'все права защищены', 'выделить главное', 'телеканал', 'доступен в пакетах', 'прямой эфир']
         lower_text = text.lower()
-        garbage_score = sum(1 for phrase in garbage_phrases if phrase in lower_text)
-        if garbage_score > 3:
+        if sum(1 for g in garbage if g in lower_text) > 3:
             return ''
-
         if len(text) < 200:
             return ''
 
@@ -160,20 +155,15 @@ def fetch_feed(url):
             if any(sw in combined for sw in STOPWORDS):
                 continue
 
-            # Title должен содержать хотя бы одно ключевое слово
+            # Ужесточённый фильтр: ключевое слово обязательно в title
             title_lower = title.lower()
             if not any(kw in title_lower for kw in KEYWORDS):
-                summary_matches = sum(1 for kw in KEYWORDS if kw in combined)
-                if summary_matches < 2:
-                    continue
+                continue
 
             full_text = fetch_full_text(link)
-
-            # Если спарсенный текст равен анонсу — парсинг не сработал
             if full_text.strip() == clean_summary.strip():
                 full_text = ''
 
-            # Fallback на RSS-текст
             if not full_text.strip() and clean_summary:
                 full_text = clean_summary
 
@@ -238,7 +228,7 @@ def save_post(entry):
     summary = entry.get('summary', '')
     full_text = entry.get('full_text', '')
 
-    lines = [
+    lines_file = [
         '---',
         f'title: "{title}"',
         f'date: {date_str}',
@@ -249,16 +239,16 @@ def save_post(entry):
         '',
     ]
     if link:
-        lines.append(f'**Источник:** [{link}]({link})')
-        lines.append('')
-    lines.append(summary)
-    lines.append('')
-    lines.append('<!--more-->')
-    lines.append('')
-    lines.append(full_text)
+        lines_file.append(f'**Источник:** [{link}]({link})')
+        lines_file.append('')
+    lines_file.append(summary)
+    lines_file.append('')
+    lines_file.append('<!--more-->')
+    lines_file.append('')
+    lines_file.append(full_text)
 
     with open(filepath, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(lines))
+        f.write('\n'.join(lines_file))
     print(f"  💾 Сохранено: {filename}")
     return True
 
@@ -279,19 +269,40 @@ def generate_index():
         category = ''
         link = ''
         source = ''
+        author = ''
         summary = ''
         full_text = ''
 
-        # Надёжный парсинг: разделяем по первым двум ---
-        parts = content.split('---\n', 2)
-        if len(parts) >= 3:
-            frontmatter = parts[1]
-            body = parts[2]
+        # === ROBUST FRONTMATTER PARSING ===
+        content_stripped = content.lstrip()
+        if content_stripped.startswith('---'):
+            parts = content_stripped.split('---\n', 2)
+            if len(parts) >= 3:
+                frontmatter = parts[1]
+                body = parts[2]
+            else:
+                frontmatter = ''
+                body = content
         else:
-            frontmatter = ''
-            body = content
+            # Raw frontmatter without --- (Jekyll-style)
+            lines_raw = content_stripped.split('\n')
+            fm_lines = []
+            body_lines = []
+            in_frontmatter = True
+            for line in lines_raw:
+                stripped = line.strip()
+                if in_frontmatter and (stripped == '' or ':' in stripped):
+                    if ':' in stripped:
+                        fm_lines.append(stripped)
+                    else:
+                        in_frontmatter = False
+                else:
+                    in_frontmatter = False
+                    body_lines.append(line)
+            frontmatter = '\n'.join(fm_lines)
+            body = '\n'.join(body_lines)
 
-        # Парсим frontmatter
+        # Parse frontmatter fields
         for line in frontmatter.split('\n'):
             line = line.strip()
             if line.startswith('title:'):
@@ -308,8 +319,10 @@ def generate_index():
                 source = line[7:].strip()
                 if source.lower() == 'none':
                     source = ''
+            elif line.startswith('author:'):
+                author = line[7:].strip().strip('"').strip("'")
 
-        # Парсим body
+        # Parse body
         body = body.strip()
         if '<!--more-->' in body:
             before, after = body.split('<!--more-->', 1)
@@ -332,24 +345,41 @@ def generate_index():
         if date:
             dates.add(date)
 
-        cat_class = 'cat-family' if 'семейное' in category else ('cat-labor' if 'трудовое' in category else 'cat-general')
+        # Normalize category
+        cat_lower = category.lower()
+        if 'семейн' in cat_lower:
+            cat_class = 'cat-family'
+            category = 'семейное право'
+        elif 'трудов' in cat_lower:
+            cat_class = 'cat-labor'
+            category = 'трудовое право'
+        else:
+            cat_class = 'cat-general'
+            category = category or 'юридические новости'
 
-        # Если полный текст равен анонсу — смысла в кнопке нет
+        # Source display
+        if 'серко' in author.lower() or 'серко' in source.lower():
+            source_name = 'Материал подготовлен юристом Серко И.И.'
+            valid_link = ''
+        else:
+            source_name = source or link or 'Неизвестный источник'
+            valid_link = link if (link and link.startswith('http')) else ''
+
         has_full = bool(full_text.strip()) and full_text.strip() != summary.strip()
 
         posts.append({
             'title': title,
             'date': date,
             'category': category,
-            'source': source or link,
-            'link': link,
+            'source_name': source_name,
+            'valid_link': valid_link,
             'cat_class': cat_class,
             'summary': summary.strip(),
             'full_text': full_text.strip(),
             'has_full': has_full,
         })
 
-    # Генерация HTML
+    # Build HTML
     import io
     out = io.StringIO()
     NL = '\n'
@@ -359,7 +389,7 @@ def generate_index():
     out.write('<head>' + NL)
     out.write('<meta charset="UTF-8">' + NL)
     out.write('<meta name="viewport" content="width=device-width, initial-scale=1.0">' + NL)
-    out.write('<title>Юридический дайджест — семейное и трудовое право РФ</title>' + NL)
+    out.write('<title>Юридический дайджест - семейное и трудовое право РФ</title>' + NL)
     out.write('<meta name="description" content="Актуальные новости по семейному и трудовому праву Российской Федерации.">' + NL)
     out.write('<meta name="keywords" content="семейное право, трудовое право, алименты, развод, юрист, юридические новости, РФ">' + NL)
     out.write('<meta property="og:title" content="Юридический дайджест">' + NL)
@@ -431,13 +461,13 @@ def generate_index():
     out.write('<a href="https://серко.рф" target="_blank">&larr; серко.рф</a>' + NL)
     out.write('</nav>' + NL)
     out.write('<div class="header-info">' + NL)
-    out.write('<div class="time">🕐 Обновлено: ' + datetime.now().strftime('%d.%m.%Y %H:%M') + ' МСК</div>' + NL)
-    out.write('<div class="weather">🌤️ ' + get_weather() + '</div>' + NL)
+    out.write('<div class="time">&#128336; Обновлено: ' + datetime.now().strftime('%d.%m.%Y %H:%M') + ' МСК</div>' + NL)
+    out.write('<div class="weather">&#127780; ' + get_weather() + '</div>' + NL)
     out.write('</div>' + NL)
     out.write('</header>' + NL)
     out.write(NL)
     out.write('<div class="calendar">' + NL)
-    out.write('<h3>📅 Новости по датам</h3>' + NL)
+    out.write('<h3>&#128197; Новости по датам</h3>' + NL)
 
     calendar_html = ''
     for d in sorted(dates, reverse=True)[:15]:
@@ -451,22 +481,22 @@ def generate_index():
     else:
         for idx, post in enumerate(posts):
             post_id = "post-" + str(idx)
-            valid_link = post['link'] if (post['link'] and post['link'].startswith('http')) else ''
-            source_name = post['source'] or 'Источник'
+            valid_link = post['valid_link']
+            source_name = post['source_name']
             full_text_html = text_to_html(post['full_text'])
             has_full = post['has_full']
 
             if valid_link:
-                source_footer = '<div class="source-link"><a href="' + valid_link + '" target="_blank" rel="noopener">🔗 Источник: ' + html_module.escape(source_name) + ' &mdash; читать оригинал &rarr;</a></div>'
+                source_footer = '<div class="source-link"><a href="' + valid_link + '" target="_blank" rel="noopener">&#128279; Источник: ' + html_module.escape(source_name) + ' &mdash; читать оригинал &rarr;</a></div>'
             else:
-                source_footer = '<div class="source-link muted">🔗 Источник недоступен</div>'
+                source_footer = '<div class="source-link muted">&#128279; ' + html_module.escape(source_name) + '</div>'
 
             out.write('<article class="post" id="' + post_id + '">' + NL)
             out.write('<h2>' + html_module.escape(post["title"]) + '</h2>' + NL)
             out.write('<div class="meta">' + NL)
-            out.write('<span class="date">📅 ' + post["date"] + '</span>' + NL)
+            out.write('<span class="date">&#128197; ' + post["date"] + '</span>' + NL)
             out.write('<span class="badge ' + post["cat_class"] + '">' + post["category"] + '</span>' + NL)
-            out.write('<span class="source">📰 ' + html_module.escape(post["source"] or "Неизвестный источник") + '</span>' + NL)
+            out.write('<span class="source">&#128240; ' + html_module.escape(source_name) + '</span>' + NL)
             out.write('</div>' + NL)
             out.write('<p class="excerpt">' + html_module.escape(post["summary"]) + '</p>' + NL)
             if has_full:
@@ -479,7 +509,7 @@ def generate_index():
 
     out.write(NL)
     out.write('<div style="background: linear-gradient(135deg, #e94560, #c44569); border-radius: 20px; padding: 30px; margin: 30px 0; text-align: center; color: white; box-shadow: 0 8px 30px rgba(233, 69, 96, 0.3);">' + NL)
-    out.write('<h3 style="margin-bottom: 10px; font-size: 22px;">💼 Нужна помощь юриста?</h3>' + NL)
+    out.write('<h3 style="margin-bottom: 10px; font-size: 22px;">&#128188; Нужна помощь юриста?</h3>' + NL)
     out.write('<p style="margin-bottom: 20px; font-size: 16px; opacity: 0.95;">Составим исковое заявление, договор, консультацию &mdash; быстро и профессионально</p>' + NL)
     out.write('<a href="https://серко.рф" target="_blank" style="display: inline-block; background: white; color: #e94560; padding: 14px 35px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 16px;">Заказать консультацию &rarr;</a>' + NL)
     out.write('</div>' + NL)
@@ -516,7 +546,7 @@ def generate_index():
 
 if __name__ == '__main__':
     print("=" * 50)
-    print("ЮРИДИЧЕСКИЙ ДАЙДЖЕСТ v2.1")
+    print("ЮРИДИЧЕСКИЙ ДАЙДЖЕСТ v2.2")
     print("=" * 50)
 
     all_entries = []
