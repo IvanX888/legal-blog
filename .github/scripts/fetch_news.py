@@ -76,16 +76,16 @@ def text_to_html(text):
 
 
 def get_weather():
-    return 'Погода в Нижнем Новгороде: +22°C, облачно'
+    return 'Москва: +22°C'
 
 
 def fetch_full_text(url):
     if not url or not url.startswith('http'):
         return ''
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'ru-RU,ru;q=0.9',
     }
     try:
         resp = requests.get(url, headers=headers, timeout=15)
@@ -155,7 +155,6 @@ def fetch_feed(url):
             if any(sw in combined for sw in STOPWORDS):
                 continue
 
-            # Ужесточённый фильтр: ключевое слово обязательно в title
             title_lower = title.lower()
             if not any(kw in title_lower for kw in KEYWORDS):
                 continue
@@ -273,7 +272,6 @@ def generate_index():
         summary = ''
         full_text = ''
 
-        # === ROBUST FRONTMATTER PARSING ===
         content_stripped = content.lstrip()
         if content_stripped.startswith('---'):
             parts = content_stripped.split('---\n', 2)
@@ -284,7 +282,6 @@ def generate_index():
                 frontmatter = ''
                 body = content
         else:
-            # Raw frontmatter without --- (Jekyll-style)
             lines_raw = content_stripped.split('\n')
             fm_lines = []
             body_lines = []
@@ -302,7 +299,6 @@ def generate_index():
             frontmatter = '\n'.join(fm_lines)
             body = '\n'.join(body_lines)
 
-        # Parse frontmatter fields
         for line in frontmatter.split('\n'):
             line = line.strip()
             if line.startswith('title:'):
@@ -322,7 +318,6 @@ def generate_index():
             elif line.startswith('author:'):
                 author = line[7:].strip().strip('"').strip("'")
 
-        # Parse body
         body = body.strip()
         if '<!--more-->' in body:
             before, after = body.split('<!--more-->', 1)
@@ -345,7 +340,6 @@ def generate_index():
         if date:
             dates.add(date)
 
-        # Normalize category
         cat_lower = category.lower()
         if 'семейн' in cat_lower:
             cat_class = 'cat-family'
@@ -357,7 +351,6 @@ def generate_index():
             cat_class = 'cat-general'
             category = category or 'юридические новости'
 
-        # Source display
         if 'серко' in author.lower() or 'серко' in source.lower():
             source_name = 'Материал подготовлен юристом Серко И.И.'
             valid_link = ''
@@ -379,7 +372,6 @@ def generate_index():
             'has_full': has_full,
         })
 
-    # Build HTML
     import io
     out = io.StringIO()
     NL = '\n'
@@ -389,17 +381,44 @@ def generate_index():
     out.write('<head>' + NL)
     out.write('<meta charset="UTF-8">' + NL)
     out.write('<meta name="viewport" content="width=device-width, initial-scale=1.0">' + NL)
-    out.write('<title>Юридический дайджест - семейное и трудовое право РФ</title>' + NL)
-    out.write('<meta name="description" content="Актуальные новости по семейному и трудовому праву Российской Федерации.">' + NL)
-    out.write('<meta name="keywords" content="семейное право, трудовое право, алименты, развод, юрист, юридические новости, РФ">' + NL)
-    out.write('<meta property="og:title" content="Юридический дайджест">' + NL)
-    out.write('<meta property="og:description" content="Актуальные новости по семейному и трудовому праву РФ">' + NL)
+    out.write('<title>Юридический дайджест - семейное и трудовое право РФ | Серко И.И.</title>' + NL)
+    out.write('<meta name="description" content="Актуальные новости по семейному и трудовому праву РФ. Юрист Серко Иван Иванович.">' + NL)
+    out.write('<meta name="keywords" content="семейное право, трудовое право, алименты, развод, юрист, юридические новости, РФ, Серко">' + NL)
+    out.write('<meta property="og:title" content="Юридический дайджест | Серко И.И.">' + NL)
+    out.write('<meta property="og:description" content="Актуальные новости по семейному и трудовому праву РФ. Консультация юриста.">' + NL)
     out.write('<meta property="og:type" content="website">' + NL)
-    out.write('<meta property="og:url" content="https://серко.рф/legal-blog/">' + NL)
+    out.write('<meta property="og:url" content="https://xn--b1aafe2a2a.xn--p1ai/legal-blog/">' + NL)
+    out.write('<meta property="og:image" content="https://xn--b1aafe2a2a.xn--p1ai/preview.jpg">' + NL)
     out.write('<meta name="robots" content="index, follow">' + NL)
+    out.write('<link rel="canonical" href="https://xn--b1aafe2a2a.xn--p1ai/legal-blog/">' + NL)
+    out.write('<script type="application/ld+json">' + NL)
+    out.write('{' + NL)
+    out.write('  "@context": "https://schema.org",' + NL)
+    out.write('  "@type": "Blog",' + NL)
+    out.write('  "name": "Юридический дайджест - Серко И.И.",' + NL)
+    out.write('  "url": "https://xn--b1aafe2a2a.xn--p1ai/legal-blog/",' + NL)
+    out.write('  "author": {' + NL)
+    out.write('    "@type": "Person",' + NL)
+    out.write('    "name": "Серко Иван Иванович",' + NL)
+    out.write('    "url": "https://xn--b1aafe2a2a.xn--p1ai/",' + NL)
+    out.write('    "sameAs": ["https://t.me/BYIvanko", "https://t.me/ConsulLexbot"]' + NL)
+    out.write('  },' + NL)
+    out.write('  "publisher": {' + NL)
+    out.write('    "@type": "Organization",' + NL)
+    out.write('    "name": "Серко И.И. - юрист онлайн",' + NL)
+    out.write('    "logo": {"@type": "ImageObject", "url": "https://xn--b1aafe2a2a.xn--p1ai/logo.png"}' + NL)
+    out.write('  }' + NL)
+    out.write('}' + NL)
+    out.write('</script>' + NL)
+    out.write('<!-- Yandex.Metrika counter -->' + NL)
+    out.write('<script type="text/javascript" >' + NL)
+    out.write('(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)}; m[i].l=1*new Date(); for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }} k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym"); ym(111837018, "init", {clickmap:true, trackLinks:true, accurateTrackBounce:true});' + NL)
+    out.write('</script>' + NL)
+    out.write('<noscript><div><img src="https://mc.yandex.ru/watch/111837018" style="position:absolute; left:-9999px;" alt="" /></div></noscript>' + NL)
+    out.write('<!-- /Yandex.Metrika counter -->' + NL)
     out.write('<style>' + NL)
     out.write('* { margin: 0; padding: 0; box-sizing: border-box; }' + NL)
-    out.write('body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; color: #333; }' + NL)
+    out.write('body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; color: #333; padding-bottom: 80px; }' + NL)
     out.write('.container { max-width: 1000px; margin: 0 auto; padding: 20px; }' + NL)
     out.write('header { background: linear-gradient(135deg, #e94560 0%, #ff6b6b 50%, #c44569 100%); border-radius: 20px; padding: 35px; margin-bottom: 25px; box-shadow: 0 10px 40px rgba(233, 69, 96, 0.3); position: relative; overflow: hidden; }' + NL)
     out.write('header::before { content: "\\u2696\\uFE0F"; position: absolute; right: 30px; top: 50%; transform: translateY(-50%); font-size: 80px; opacity: 0.15; }' + NL)
@@ -442,6 +461,24 @@ def generate_index():
     out.write('footer { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.7); font-size: 14px; }' + NL)
     out.write('footer a { color: #e94560; font-weight: 600; text-decoration: none; }' + NL)
     out.write('footer a:hover { text-decoration: underline; }' + NL)
+    out.write('.article-cta { background: linear-gradient(135deg,#f8f9fa,#e9ecef); border-radius: 15px; padding: 25px; margin-top: 30px; text-align: center; border: 2px solid #e94560; }' + NL)
+    out.write('.article-cta h4 { color: #1a1a2e; margin-bottom: 15px; font-size: 18px; }' + NL)
+    out.write('.article-cta p { color: #555; margin-bottom: 20px; font-size: 15px; }' + NL)
+    out.write('.article-cta .btn-bot { display: inline-block; background: linear-gradient(135deg,#e94560,#c44569); color: #fff; padding: 14px 35px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 16px; box-shadow: 0 4px 15px rgba(233,69,96,0.3); transition: all 0.3s; }' + NL)
+    out.write('.article-cta .btn-bot:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(233,69,96,0.4); }' + NL)
+    out.write('.article-cta .cta-note { margin-top: 15px; font-size: 13px; color: #888; }' + NL)
+    out.write('.sticky-bar { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg,#e94560,#c44569); padding: 12px; display: flex; justify-content: center; gap: 10px; z-index: 9999; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); }' + NL)
+    out.write('.sticky-bar a { padding: 10px 24px; border-radius: 25px; text-decoration: none; font-weight: 700; font-size: 14px; transition: all 0.3s; }' + NL)
+    out.write('.sticky-bar .btn-bot { background: #fff; color: #e94560; }' + NL)
+    out.write('.sticky-bar .btn-call { background: rgba(255,255,255,0.2); color: #fff; }' + NL)
+    out.write('.sticky-bar a:hover { transform: translateY(-2px); }' + NL)
+    out.write('.footer-cta { background: linear-gradient(135deg,#e94560,#c44569); border-radius: 20px; padding: 30px; margin: 30px 0; text-align: center; color: white; box-shadow: 0 8px 30px rgba(233,69,96,0.3); }' + NL)
+    out.write('.footer-cta h3 { margin-bottom: 10px; font-size: 22px; }' + NL)
+    out.write('.footer-cta p { margin-bottom: 20px; font-size: 16px; opacity: 0.95; }' + NL)
+    out.write('.footer-cta .cta-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }' + NL)
+    out.write('.footer-cta .btn-bot { display: inline-block; background: white; color: #e94560; padding: 14px 30px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 15px; transition: all 0.3s; }' + NL)
+    out.write('.footer-cta .btn-site { display: inline-block; background: rgba(255,255,255,0.2); color: white; padding: 14px 30px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 15px; transition: all 0.3s; }' + NL)
+    out.write('.footer-cta a:hover { transform: translateY(-2px); }' + NL)
     out.write('@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }' + NL)
     out.write('@media (max-width: 768px) {' + NL)
     out.write('  h1 { font-size: 24px; }' + NL)
@@ -449,16 +486,24 @@ def generate_index():
     out.write('  .post h2 { font-size: 18px; }' + NL)
     out.write('  .header-info { flex-direction: column; align-items: flex-start; }' + NL)
     out.write('  header::before { display: none; }' + NL)
+    out.write('  .sticky-bar a { padding: 10px 16px; font-size: 13px; }' + NL)
+    out.write('  .footer-cta .cta-buttons { flex-direction: column; align-items: center; }' + NL)
+    out.write('  .footer-cta a { width: 100%; max-width: 280px; text-align: center; }' + NL)
     out.write('}' + NL)
     out.write('</style>' + NL)
     out.write('</head>' + NL)
     out.write('<body>' + NL)
+    out.write('<div class="sticky-bar">' + NL)
+    out.write('  <a href="https://t.me/ConsulLexbot" class="btn-bot" target="_blank" rel="noopener noreferrer">🤖 Написать боту</a>' + NL)
+    out.write('  <a href="tel:+79774232473" class="btn-call">📞 Позвонить</a>' + NL)
+    out.write('</div>' + NL)
     out.write('<div class="container">' + NL)
     out.write('<header>' + NL)
     out.write('<h1>Юридический дайджест</h1>' + NL)
     out.write('<p class="subtitle">Актуальные новости по <strong>семейному</strong> и <strong>трудовому</strong> праву РФ</p>' + NL)
     out.write('<nav>' + NL)
-    out.write('<a href="https://серко.рф" target="_blank">&larr; серко.рф</a>' + NL)
+    out.write('<a href="https://xn--b1aafe2a2a.xn--p1ai" target="_blank">&larr; серко.рф</a>' + NL)
+    out.write('<a href="https://t.me/ConsulLexbot" target="_blank" rel="noopener noreferrer">🤖 Бот</a>' + NL)
     out.write('</nav>' + NL)
     out.write('<div class="header-info">' + NL)
     out.write('<div class="time">&#128336; Обновлено: ' + datetime.now().strftime('%d.%m.%Y %H:%M') + ' МСК</div>' + NL)
@@ -487,7 +532,7 @@ def generate_index():
             has_full = post['has_full']
 
             if valid_link:
-                source_footer = '<div class="source-link"><a href="' + valid_link + '" target="_blank" rel="noopener">&#128279; Источник: ' + html_module.escape(source_name) + ' &mdash; читать оригинал &rarr;</a></div>'
+                source_footer = '<div class="source-link"><a href="' + valid_link + '" target="_blank" rel="noopener">&#128279; Источник: ' + html_module.escape(source_name) + ' - читать оригинал &rarr;</a></div>'
             else:
                 source_footer = '<div class="source-link muted">&#128279; ' + html_module.escape(source_name) + '</div>'
 
@@ -504,18 +549,27 @@ def generate_index():
                 out.write('<div class="full-text" id="full-' + post_id + '" style="display:none;">' + NL)
                 out.write('<div class="full-text-content">' + NL + full_text_html + NL + '</div>' + NL)
                 out.write(source_footer + NL)
+                out.write('<div class="article-cta">' + NL)
+                out.write('  <h4>💬 Остались вопросы по теме?</h4>' + NL)
+                out.write('  <p>Юрист Серко И.И. ответит лично через Telegram-бота</p>' + NL)
+                out.write('  <a href="https://t.me/ConsulLexbot" class="btn-bot" target="_blank" rel="noopener noreferrer">🤖 Написать боту @ConsulLexbot</a>' + NL)
+                out.write('  <p class="cta-note">Ответ в течение суток • Консультация от 2 000 ₽ • Работаю по всей России</p>' + NL)
+                out.write('</div>' + NL)
                 out.write('</div>' + NL)
             out.write('</article>' + NL)
 
     out.write(NL)
-    out.write('<div style="background: linear-gradient(135deg, #e94560, #c44569); border-radius: 20px; padding: 30px; margin: 30px 0; text-align: center; color: white; box-shadow: 0 8px 30px rgba(233, 69, 96, 0.3);">' + NL)
-    out.write('<h3 style="margin-bottom: 10px; font-size: 22px;">&#128188; Нужна помощь юриста?</h3>' + NL)
-    out.write('<p style="margin-bottom: 20px; font-size: 16px; opacity: 0.95;">Составим исковое заявление, договор, консультацию &mdash; быстро и профессионально</p>' + NL)
-    out.write('<a href="https://серко.рф" target="_blank" style="display: inline-block; background: white; color: #e94560; padding: 14px 35px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 16px;">Заказать консультацию &rarr;</a>' + NL)
+    out.write('<div class="footer-cta">' + NL)
+    out.write('  <h3>💼 Нужна помощь юриста?</h3>' + NL)
+    out.write('  <p>Составим иск, договор, консультацию - быстро и профессионально</p>' + NL)
+    out.write('  <div class="cta-buttons">' + NL)
+    out.write('    <a href="https://t.me/ConsulLexbot" class="btn-bot" target="_blank" rel="noopener noreferrer">🤖 Написать боту</a>' + NL)
+    out.write('    <a href="https://xn--b1aafe2a2a.xn--p1ai" class="btn-site" target="_blank">🌐 Перейти на сайт</a>' + NL)
+    out.write('  </div>' + NL)
     out.write('</div>' + NL)
     out.write(NL)
     out.write('<footer>' + NL)
-    out.write('<p>&copy; Юридический дайджест | <a href="https://серко.рф" target="_blank">серко.рф</a> | Все материалы взяты из открытых источников</p>' + NL)
+    out.write('<p>&copy; Юридический дайджест | <a href="https://xn--b1aafe2a2a.xn--p1ai" target="_blank">серко.рф</a> | <a href="https://t.me/ConsulLexbot" target="_blank" rel="noopener noreferrer">@ConsulLexbot</a> | Все материалы взяты из открытых источников</p>' + NL)
     out.write('</footer>' + NL)
     out.write('</div>' + NL)
     out.write(NL)
@@ -546,7 +600,7 @@ def generate_index():
 
 if __name__ == '__main__':
     print("=" * 50)
-    print("ЮРИДИЧЕСКИЙ ДАЙДЖЕСТ v2.2")
+    print("ЮРИДИЧЕСКИЙ ДАЙДЖЕСТ v2.3")
     print("=" * 50)
 
     all_entries = []
