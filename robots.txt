@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://серко.рф/legal-blog/sitemap.xml
