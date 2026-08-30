@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{title}} | Юридический дайджест</title>
+<meta name="description" content="{{description}}">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="{{canonical}}">
+<meta property="og:title" content="{{title}}">
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{canonical}}">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "{{title}}",
+  "datePublished": "{{date}}",
+  "dateModified": "{{date}}",
+  "author": {
+    "@type": "Person",
+    "name": "Серко Иван Иванович",
+    "url": "https://серко.рф/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Серко И.И. - юрист онлайн"
+  }
+}
+</script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; color: #333; padding-bottom: 80px; }
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+header { background: linear-gradient(135deg, #e94560 0%, #ff6b6b 50%, #c44569 100%); border-radius: 20px; padding: 35px; margin-bottom: 25px; }
+header h1 { font-size: 28px; color: #fff; margin-bottom: 10px; }
+header p { color: rgba(255,255,255,0.9); }
+header nav { margin-top: 15px; }
+header nav a { color: #fff; text-decoration: none; font-weight: 600; margin-right: 20px; }
+article { background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+article h2 { color: #1a1a2e; margin: 20px 0 10px; font-size: 20px; }
+article p { line-height: 1.8; margin-bottom: 15px; color: #333; }
+article ul { margin: 10px 0 20px 20px; }
+article li { margin-bottom: 8px; line-height: 1.6; }
+.meta { display: flex; gap: 15px; align-items: center; margin-bottom: 20px; font-size: 14px; color: #666; flex-wrap: wrap; }
+.badge { padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; background: #fce4ec; color: #c2185b; }
+.cta { background: linear-gradient(135deg,#f8f9fa,#e9ecef); border-radius: 15px; padding: 25px; margin-top: 30px; text-align: center; border: 2px solid #e94560; }
+.cta a { display: inline-block; background: linear-gradient(135deg,#e94560,#c44569); color: #fff; padding: 14px 35px; border-radius: 30px; text-decoration: none; font-weight: 700; }
+footer { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.7); }
+footer a { color: #e94560; font-weight: 600; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>Юридический дайджест</h1>
+<p>Aктуальные новости по <strong>семейному</strong> и <strong>трудовому</strong> праву РФ</p>
+<nav>
+<a href="https://серко.рф">&larr; серко.рф</a>
+<a href="https://серко.рф/legal-blog/">&larr; Блог</a>
+</nav>
+</header>
+
+<article>
+<div class="meta">
+<span>{{date_ru}}</span>
+<span class="badge">{{category}}</span>
+<span>Материал подготовлен юристом Серко И.И.</span>
+</div>
+
+<h1>{{title}}</h1>
+
+{{content}}
+
+<div class="cta">
+<h3>Oстались вопросы по теме?</h3>
+<p>Юрист Серко И.И. ответит лично через Telegram-бота</p>
+<a href="https://t.me/ConsulLexbot" target="_blank" rel="noopener noreferrer">Написать боту @ConsulLexbot</a>
+<p style="margin-top:10px; font-size:13px; color:#888;">Ответ в течение суток &bull; Консультация от 2 000 руб. &bull; Работаю по всей России</p>
+</div>
+</article>
+
+<footer>
+<p>&copy; Юридический дайджест | <a href="https://серко.рф">серко.рф</a> | <a href="https://t.me/ConsulLexbot" target="_blank" rel="noopener noreferrer">@ConsulLexbot</a></p>
+</footer>
+</div>
+</body>
+</html>
