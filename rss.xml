@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<channel>
+  <title>Юридический дайджест — Серко И.И.</title>
+  <link>https://серко.рф/legal-blog/</link>
+  <description>Актуальные новости по семейному и трудовому праву РФ. Юрист Серко Иван Иванович.</description>
+  <language>ru</language>
+  <lastBuildDate>Mon, 01 Sep 2026 00:00:00 +0300</lastBuildDate>
+  <atom:link href="https://серко.рф/legal-blog/rss.xml" rel="self" type="application/rss+xml"/>
+  <item>
+    <title>Алименты на ребёнка в 2026 году: полная инструкция по взысканию, размеры и судебная практика</title>
+    <link>https://серко.рф/legal-blog/alimenty-na-rebenka.html</link>
+    <guid>https://серко.рф/legal-blog/alimenty-na-rebenka.html</guid>
+    <pubDate>Sun, 31 Aug 2026 00:00:00 +0300</pubDate>
+    <category>семейное право</category>
+    <description>Актуально на август 2026 года. Каждый третий развод в России заканчивается взысканием алиментов...</description>
+  </item>
+  <item>
+    <title>Как выселить бывшего сожителя из квартиры без брака в 2026 году: пошаговая инструкция</title>
+    <link>https://серко.рф/legal-blog/kak-vyselit-devushku.html</link>
+    <guid>https://серко.рф/legal-blog/kak-vyselit-devushku.html</guid>
+    <pubDate>Sat, 30 Aug 2026 00:00:00 +0300</pubDate>
+    <category>семейное право</category>
+    <description>Один из партнёров — собственник квартиры. Со вторым прожили вместе 3 года, брак не регистрировали...</description>
+  </item>
+</channel>
+</rss>
