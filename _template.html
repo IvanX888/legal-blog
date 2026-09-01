@@ -7,10 +7,27 @@
 <meta name="description" content="{{description}}">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="{{canonical}}">
+<link rel="alternate" hreflang="ru-ru" href="{{canonical}}">
+<link rel="icon" type="image/svg+xml" href="https://серко.рф/favicon.svg">
+<link rel="apple-touch-icon" href="https://серко.рф/favicon.svg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a1a2e" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=yes">
 <meta property="og:title" content="{{title}}">
 <meta property="og:description" content="{{description}}">
 <meta property="og:type" content="article">
 <meta property="og:url" content="{{canonical}}">
+<meta property="og:image" content="https://серко.рф/my-photo.jpg">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{title}}">
+<meta name="twitter:description" content="{{description}}">
+<meta name="twitter:image" content="https://серко.рф/my-photo.jpg">
+<link rel="preconnect" href="https://mc.yandex.ru">
+<link rel="preconnect" href="https://t.me">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -49,10 +66,6 @@ h1 { font-size: 32px; color: #fff; margin-bottom: 10px; text-shadow: 0 2px 4px r
 nav { margin-top: 15px; }
 nav a { color: #fff; text-decoration: none; font-weight: 600; margin-right: 25px; opacity: 0.9; transition: opacity 0.2s; }
 nav a:hover { opacity: 1; text-decoration: underline; }
-.calendar { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; margin-bottom: 25px; }
-.calendar h3 { color: #fff; font-size: 16px; margin-bottom: 12px; }
-.cal-date { display: inline-block; background: rgba(255,255,255,0.15); color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 13px; margin: 4px; text-decoration: none; transition: all 0.2s; }
-.cal-date:hover { background: #e94560; transform: scale(1.05); }
 .post { background: #fff; border-radius: 20px; padding: 30px; margin-bottom: 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); transition: all 0.3s; border-left: 5px solid transparent; }
 .post:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
 .post:nth-child(3n+1) { border-left-color: #e94560; }
@@ -64,19 +77,10 @@ nav a:hover { opacity: 1; text-decoration: underline; }
 .cat-family { background: #fce4ec; color: #c2185b; }
 .cat-labor { background: #e8f5e9; color: #2e7d32; }
 .cat-general { background: #e3f2fd; color: #1565c0; }
-.excerpt { color: #555; line-height: 1.7; font-size: 15px; margin-bottom: 15px; }
-.read-more-btn { display: inline-flex; align-items: center; gap: 5px; background: linear-gradient(135deg, #e94560, #c44569); color: #fff; padding: 10px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s; box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3); }
-.read-more-btn:hover { transform: translateX(5px); box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4); }
-.full-text { margin-top: 20px; padding-top: 20px; border-top: 2px solid #f0f0f0; display: none; animation: fadeIn 0.3s ease; }
 .full-text-content { line-height: 1.8; font-size: 15px; color: #333; }
 .full-text-content p { margin-bottom: 15px; }
-.no-fulltext { color: #999; font-style: italic; padding: 20px; text-align: center; background: #f9f9f9; border-radius: 10px; }
 .source-link { margin-top: 25px; padding: 15px; background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 12px; text-align: center; border: 1px solid #dee2e6; }
-.source-link a { color: #e94560; font-weight: 700; text-decoration: none; font-size: 15px; transition: all 0.2s; }
-.source-link a:hover { text-decoration: underline; }
 .source-link.muted { color: #999; font-size: 14px; }
-.empty { background: #fff; border-radius: 20px; padding: 60px 20px; text-align: center; color: #999; }
-.empty h3 { color: #1a1a2e; margin-bottom: 10px; }
 footer { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.7); font-size: 14px; }
 footer a { color: #e94560; font-weight: 600; text-decoration: none; }
 footer a:hover { text-decoration: underline; }
