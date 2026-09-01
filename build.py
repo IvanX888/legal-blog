@@ -76,6 +76,8 @@ def build_posts():
     return posts
 
 def build_index(posts):
+    with open("_style.css", "r", encoding="utf-8") as f:
+        css = f.read()
     cards = []
     for i, p in enumerate(posts):
         border_color = ["#e94560", "#533483", "#0f3460"][i % 3]
@@ -93,7 +95,6 @@ def build_index(posts):
         )
         cards.append(card)
     cards_html = "\n".join(cards) if cards else '<div class="empty"><h3>Посты скоро появятся...</h3></div>'
-
     cal_dates = "\n".join(['<a href="#' + p["slug"].replace('.html', '') + '" class="cal-date">' + p["date"] + '</a>' for p in posts])
 
     html = (
@@ -103,9 +104,25 @@ def build_index(posts):
         '<meta name="description" content="Актуальные новости по семейному и трудовому праву РФ. Юрист Серко Иван Иванович.">\n'
         '<meta name="robots" content="index, follow">\n'
         '<link rel="canonical" href="' + SITE_URL + BLOG_PATH + '/">\n'
+        '<link rel="alternate" hreflang="ru-ru" href="' + SITE_URL + BLOG_PATH + '/">\n'
+        '<link rel="icon" type="image/svg+xml" href="' + SITE_URL + '/favicon.svg">\n'
+        '<link rel="apple-touch-icon" href="' + SITE_URL + '/favicon.svg">\n'
+        '<link rel="manifest" href="manifest.json">\n'
+        '<meta name="theme-color" content="#1a1a2e" media="(prefers-color-scheme: dark)">\n'
+        '<meta name="apple-mobile-web-app-capable" content="yes">\n'
+        '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n'
+        '<meta name="mobile-web-app-capable" content="yes">\n'
+        '<meta name="format-detection" content="telephone=yes">\n'
         '<meta property="og:title" content="Юридический дайджест | Серко И.И.">\n'
         '<meta property="og:type" content="website">\n'
         '<meta property="og:url" content="' + SITE_URL + BLOG_PATH + '/">\n'
+        '<meta property="og:image" content="' + SITE_URL + '/my-photo.jpg">\n'
+        '<meta property="og:locale" content="ru_RU">\n'
+        '<meta name="twitter:card" content="summary_large_image">\n'
+        '<meta name="twitter:title" content="Юридический дайджест | Серко И.И.">\n'
+        '<meta name="twitter:image" content="' + SITE_URL + '/my-photo.jpg">\n'
+        '<link rel="preconnect" href="https://mc.yandex.ru">\n'
+        '<link rel="preconnect" href="https://t.me">\n'
         '<script type="application/ld+json">\n'
         '{"@context":"https://schema.org","@type":"Blog","name":"Юридический дайджест - Серко И.И.",'
         '"url":"' + SITE_URL + BLOG_PATH + '/","author":{"@type":"Person","name":"Серко Иван Иванович",'
@@ -119,7 +136,7 @@ def build_index(posts):
         '(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");'
         'ym(111837018,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true});</script>\n'
         '<noscript><div><img src="https://mc.yandex.ru/watch/111837018" style="position:absolute;left:-9999px;" alt="" /></div></noscript>\n'
-        '<style>\n' + open('_style.css', 'r', encoding='utf-8').read() + '\n'
+        '<style>\n' + css + '\n'
         '.post a.read-more-btn { text-decoration: none; }\n'
         '</style>\n</head>\n<body>\n'
         '<div class="sticky-bar">\n'
@@ -156,8 +173,9 @@ def build_index(posts):
     print("[OK] index.html")
 
 def build_sitemap(posts):
+    today = datetime.now().strftime("%Y-%m-%d")
     urls = [
-        '<url><loc>' + SITE_URL + BLOG_PATH + '/</loc><lastmod>' + datetime.now().strftime("%Y-%m-%d") + '</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>'
+        '<url><loc>' + SITE_URL + BLOG_PATH + '/</loc><lastmod>' + today + '</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>'
     ]
     for p in posts:
         urls.append('<url><loc>' + p["canonical"] + '</loc><lastmod>' + p["date"] + '</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>')
@@ -167,9 +185,50 @@ def build_sitemap(posts):
     print("[OK] sitemap.xml")
 
 def build_robots():
+    txt = (
+        "User-agent: *\nAllow: /\nSitemap: " + SITE_URL + BLOG_PATH + "/sitemap.xml\n"
+        "Host: " + SITE_URL + BLOG_PATH + "/\n\n"
+        "User-agent: Googlebot\nAllow: /\nCrawl-delay: 1\n\n"
+        "User-agent: Yandex\nAllow: /\nCrawl-delay: 1\n\n"
+        "User-agent: ChatGPT-User\nAllow: /\n\n"
+        "User-agent: GPTBot\nAllow: /\n\n"
+        "User-agent: PerplexityBot\nAllow: /"
+    )
     with open(os.path.join(OUTPUT_DIR, "robots.txt"), "w", encoding="utf-8") as f:
-        f.write("User-agent: *\nAllow: /\nSitemap: " + SITE_URL + BLOG_PATH + "/sitemap.xml")
+        f.write(txt)
     print("[OK] robots.txt")
+
+def build_rss(posts):
+    items = []
+    for p in posts:
+        pub = datetime.strptime(p["date"], "%Y-%m-%d").strftime("%a, %d %b %Y 00:00:00 +0300")
+        items.append(
+            '  <item>\n'
+            '    <title>' + p["title"] + '</title>\n'
+            '    <link>' + p["canonical"] + '</link>\n'
+            '    <guid>' + p["canonical"] + '</guid>\n'
+            '    <pubDate>' + pub + '</pubDate>\n'
+            '    <category>' + p["category"] + '</category>\n'
+            '    <description>' + p["description"] + '</description>\n'
+            '  </item>'
+        )
+    today_rss = datetime.now().strftime("%a, %d %b %Y 00:00:00 +0300")
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">\n'
+        '<channel>\n'
+        '  <title>Юридический дайджест — Серко И.И.</title>\n'
+        '  <link>' + SITE_URL + BLOG_PATH + '/</link>\n'
+        '  <description>Актуальные новости по семейному и трудовому праву РФ. Юрист Серко Иван Иванович.</description>\n'
+        '  <language>ru</language>\n'
+        '  <lastBuildDate>' + today_rss + '</lastBuildDate>\n'
+        '  <atom:link href="' + SITE_URL + BLOG_PATH + '/rss.xml" rel="self" type="application/rss+xml"/>\n'
+        + "\n".join(items) + '\n'
+        '</channel>\n</rss>'
+    )
+    with open(os.path.join(OUTPUT_DIR, "rss.xml"), "w", encoding="utf-8") as f:
+        f.write(xml)
+    print("[OK] rss.xml")
 
 if __name__ == "__main__":
     print("=" * 40 + "\n  СБОРКА БЛОГА\n" + "=" * 40)
@@ -177,5 +236,6 @@ if __name__ == "__main__":
     build_index(posts)
     build_sitemap(posts)
     build_robots()
+    build_rss(posts)
     print("=" * 40)
     print("Готово! Постов: " + str(len(posts)))
