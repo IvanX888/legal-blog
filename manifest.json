@@ -1,0 +1,15 @@
+{
+  "name": "Юридический дайджест — Серко И.И.",
+  "short_name": "ЮрДайджест",
+  "start_url": "/legal-blog/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "icons": [
+    {
+      "src": "https://серко.рф/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
