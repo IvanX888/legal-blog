@@ -32,6 +32,15 @@ def slug_from_filename(filename):
     name = os.path.splitext(filename)[0]
     return re.sub(r"^\d{4}-\d{2}-\d{2}-", "", name) + ".html"
 
+def smart_trunc(s, limit):
+    """Усечение по границе слова; ключевое слово остаётся в начале."""
+    if len(s) <= limit:
+        return s
+    cut = s[:limit]
+    if " " in cut:
+        cut = cut[:cut.rfind(" ")].rstrip(" ,.—:;!…")
+    return cut + "…"
+
 def date_ru(date_str):
     try:
         return datetime.strptime(date_str, "%Y-%m-%d").strftime("%d.%m.%Y")
@@ -41,30 +50,48 @@ def date_ru(date_str):
 def build_posts():
     with open(TEMPLATE_FILE, "r", encoding="utf-8") as f:
         template = f.read()
-    posts = []
+    entries = []
     for filename in sorted(os.listdir(POSTS_DIR), reverse=True):
         if not filename.endswith(".md"):
             continue
         with open(os.path.join(POSTS_DIR, filename), "r", encoding="utf-8") as f:
             text = f.read()
         meta, content = parse_front_matter(text)
-        slug = slug_from_filename(filename)
-        title = meta.get("title", "Без заголовка")
-        description = meta.get("description", "")
-        category = meta.get("category", "общее")
-        date = meta.get("date", datetime.now().strftime("%Y-%m-%d"))
+        entries.append((filename, meta, content))
+    infos = []
+    for filename, meta, content in entries:
+        infos.append({
+            "slug": slug_from_filename(filename),
+            "title": meta.get("title", "Без заголовка"),
+            "description": meta.get("description", ""),
+            "category": meta.get("category", "общее"),
+            "date": meta.get("date", datetime.now().strftime("%Y-%m-%d")),
+            "content": content,
+        })
+    posts = []
+    for info in infos:
+        slug = info["slug"]
+        title = info["title"]
+        description = info["description"]
+        category = info["category"]
+        date = info["date"]
         canonical = SITE_URL + BLOG_PATH + "/" + slug
+        related = "".join(
+            '<li><a href="' + q["slug"] + '">' + q["title"] + "</a></li>"
+            for q in infos if q["slug"] != slug
+        )
         html = template
-        html = html.replace("{{title}}", title)
-        html = html.replace("{{description}}", description)
+        html = html.replace("{{title}}", smart_trunc(title, 60))
+        html = html.replace("{{description}}", smart_trunc(description, 160))
         html = html.replace("{{category}}", category)
         html = html.replace("{{date}}", date)
         html = html.replace("{{date_ru}}", date_ru(date))
         html = html.replace("{{canonical}}", canonical)
-        html = html.replace("{{content}}", content)
+        html = html.replace("{{related}}", related)
+        html = html.replace("{{content}}", info["content"])
         with open(os.path.join(OUTPUT_DIR, slug), "w", encoding="utf-8") as f:
             f.write(html)
-        text_only = re.sub(r"<[^>]+>", "", content)
+        text_only = re.sub(r"<[^>]+>", "", info["content"])
         teaser = text_only[:300] + "..." if len(text_only) > 300 else text_only
         posts.append({
             "title": title, "slug": slug, "date": date,
@@ -100,8 +127,8 @@ def build_index(posts):
     html = (
         '<!DOCTYPE html>\n<html lang="ru">\n<head>\n'
         '<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
-        '<title>Юридический дайджест - семейное и трудовое право РФ | Серко И.И.</title>\n'
-        '<meta name="description" content="Актуальные новости по семейному и трудовому праву РФ. Юрист Серко Иван Иванович.">\n'
+        '<title>База знаний по семейному праву | Серко И.И.</title>\n'
+        '<meta name="description" content="Разборы по алиментам, разводам, разделу имущества и семейным спорам. Юрист Серко Иван Иванович.">\n'
         '<meta name="robots" content="index, follow">\n'
         '<link rel="canonical" href="' + SITE_URL + BLOG_PATH + '/">\n'
         '<link rel="alternate" hreflang="ru-ru" href="' + SITE_URL + BLOG_PATH + '/">\n'
@@ -113,13 +140,13 @@ def build_index(posts):
         '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n'
         '<meta name="mobile-web-app-capable" content="yes">\n'
         '<meta name="format-detection" content="telephone=yes">\n'
-        '<meta property="og:title" content="Юридический дайджест | Серко И.И.">\n'
+        '<meta property="og:title" content="База знаний по семейному праву | Серко И.И.">\n'
         '<meta property="og:type" content="website">\n'
         '<meta property="og:url" content="' + SITE_URL + BLOG_PATH + '/">\n'
         '<meta property="og:image" content="' + SITE_URL + '/my-photo.jpg">\n'
         '<meta property="og:locale" content="ru_RU">\n'
         '<meta name="twitter:card" content="summary_large_image">\n'
-        '<meta name="twitter:title" content="Юридический дайджест | Серко И.И.">\n'
+        '<meta name="twitter:title" content="База знаний по семейному праву | Серко И.И.">\n'
         '<meta name="twitter:image" content="' + SITE_URL + '/my-photo.jpg">\n'
         '<link rel="preconnect" href="https://mc.yandex.ru">\n'
         '<link rel="preconnect" href="https://t.me">\n'
@@ -144,14 +171,13 @@ def build_index(posts):
         '  <a href="tel:+79774232473" class="btn-call">📞 Позвонить</a>\n'
         '</div>\n'
         '<div class="container">\n'
-        '<header>\n<h1>Юридический дайджест</h1>\n'
-        '<p class="subtitle">Актуальные новости по <strong>семейному</strong> и <strong>трудовому</strong> праву РФ</p>\n'
+        '<header>\n<h1>База знаний по семейному праву</h1>\n'
+        '<p class="subtitle">Разборы по <strong>алиментам</strong>, <strong>разводам</strong> и семейным спорам от юриста Серко И.И.</p>\n'
         '<nav>\n<a href="' + SITE_URL + '" target="_blank">← серко.рф</a>\n'
         '<a href="https://t.me/ConsulLexbot" target="_blank" rel="noopener noreferrer">🤖 Бот</a>\n'
         '</nav>\n'
         '<div class="header-info">\n'
         '<div class="time">⏰ Обновлено: ' + datetime.now().strftime("%d.%m.%Y %H:%M") + ' МСК</div>\n'
-        '<div class="weather">🌤 Москва: +22°C</div>\n'
         '</div>\n</header>\n\n'
         '<div class="calendar">\n<h3>📅 Новости по датам</h3>\n' + cal_dates + '\n</div>\n\n'
         + cards_html + '\n\n'

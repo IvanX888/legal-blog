@@ -58,7 +58,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
 .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
 header { background: linear-gradient(135deg, #e94560 0%, #ff6b6b 50%, #c44569 100%); border-radius: 20px; padding: 35px; margin-bottom: 25px; box-shadow: 0 10px 40px rgba(233, 69, 96, 0.3); position: relative; overflow: hidden; }
 header::before { content: "\u2696\uFE0F"; position: absolute; right: 30px; top: 50%; transform: translateY(-50%); font-size: 80px; opacity: 0.15; }
-h1 { font-size: 32px; color: #fff; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.brand { font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 .subtitle { color: rgba(255,255,255,0.9); font-size: 16px; margin-bottom: 20px; }
 .header-info { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); }
 .weather { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: #fff; padding: 10px 20px; border-radius: 25px; font-size: 14px; font-weight: 600; }
@@ -71,7 +71,9 @@ nav a:hover { opacity: 1; text-decoration: underline; }
 .post:nth-child(3n+1) { border-left-color: #e94560; }
 .post:nth-child(3n+2) { border-left-color: #533483; }
 .post:nth-child(3n+3) { border-left-color: #0f3460; }
-.post h2 { font-size: 22px; color: #1a1a2e; margin-bottom: 15px; line-height: 1.4; }
+.post h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 15px; line-height: 1.4; }
+.full-text-content h3 { font-size: 18px; color: #1a1a2e; margin: 20px 0 10px; }
+.full-text-content h4 { font-size: 16px; color: #1a1a2e; margin: 15px 0 8px; }
 .meta { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; font-size: 14px; color: #666; }
 .badge { padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 .cat-family { background: #fce4ec; color: #c2185b; }
@@ -90,6 +92,12 @@ footer a:hover { text-decoration: underline; }
 .article-cta .btn-bot { display: inline-block; background: linear-gradient(135deg,#e94560,#c44569); color: #fff; padding: 14px 35px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 16px; box-shadow: 0 4px 15px rgba(233,69,96,0.3); transition: all 0.3s; }
 .article-cta .btn-bot:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(233,69,96,0.4); }
 .article-cta .cta-note { margin-top: 15px; font-size: 13px; color: #888; }
+.related { margin-top: 30px; padding: 20px 25px; background: #f8f9fa; border-radius: 15px; border: 1px solid #dee2e6; }
+.related h3 { font-size: 17px; color: #1a1a2e; margin-bottom: 12px; }
+.related ul { list-style: none; }
+.related li { margin-bottom: 8px; }
+.related a { color: #e94560; font-weight: 600; text-decoration: none; }
+.related a:hover { text-decoration: underline; }
 .sticky-bar { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg,#e94560,#c44569); padding: 12px; display: flex; justify-content: center; gap: 10px; z-index: 9999; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); }
 .sticky-bar a { padding: 10px 24px; border-radius: 25px; text-decoration: none; font-weight: 700; font-size: 14px; transition: all 0.3s; }
 .sticky-bar .btn-bot { background: #fff; color: #e94560; }
@@ -104,9 +112,9 @@ footer a:hover { text-decoration: underline; }
 .footer-cta a:hover { transform: translateY(-2px); }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 768px) {
-  h1 { font-size: 24px; }
+  .brand { font-size: 24px; }
   .post { padding: 20px; }
-  .post h2 { font-size: 18px; }
+  .post h1 { font-size: 18px; }
   .header-info { flex-direction: column; align-items: flex-start; }
   header::before { display: none; }
   .sticky-bar a { padding: 10px 16px; font-size: 13px; }
@@ -122,7 +130,7 @@ footer a:hover { text-decoration: underline; }
 </div>
 <div class="container">
 <header>
-<h1>Юридический дайджест</h1>
+<div class="brand">Юридический дайджест</div>
 <p class="subtitle">Актуальные новости по <strong>семейному</strong> и <strong>трудовому</strong> праву РФ</p>
 <nav>
 <a href="https://серко.рф" target="_blank">← серко.рф</a>
@@ -136,7 +144,7 @@ footer a:hover { text-decoration: underline; }
 </header>
 
 <article class="post" id="post-full">
-<h2>{{title}}</h2>
+<h1>{{title}}</h1>
 <div class="meta">
 <span class="date">📅 {{date_ru}}</span>
 <span class="badge cat-family">{{category}}</span>
@@ -151,6 +159,10 @@ footer a:hover { text-decoration: underline; }
   <p>Юрист Серко И.И. ответит лично через Telegram-бота</p>
   <a href="https://t.me/ConsulLexbot" class="btn-bot" target="_blank" rel="noopener noreferrer">🤖 Написать боту @ConsulLexbot</a>
   <p class="cta-note">Ответ в течение суток • Консультация от 2 000 ₽ • Работаю по всей России</p>
+</div>
+<div class="related">
+  <h3>📚 Читайте также</h3>
+  <ul>{{related}}</ul>
 </div>
 </article>
 
