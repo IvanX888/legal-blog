@@ -82,6 +82,7 @@ def build_posts():
         )
         html = template
         html = html.replace("{{title}}", smart_trunc(title, 60))
+        html = html.replace("{{title_full}}", title)
         html = html.replace("{{description}}", smart_trunc(description, 160))
         html = html.replace("{{category}}", category)
         html = html.replace("{{date}}", date)
@@ -109,7 +110,7 @@ def build_index(posts):
     for i, p in enumerate(posts):
         border_color = ["#e94560", "#533483", "#0f3460"][i % 3]
         card = (
-            '<article class="post" id="post-' + str(i) + '" style="border-left-color:' + border_color + '">\n'
+            '<article class="post" id="' + p["slug"].replace('.html', '') + '" style="border-left-color:' + border_color + '">\n'
             '  <h2>' + p["title"] + '</h2>\n'
             '  <div class="meta">\n'
             '    <span class="date">📅 ' + p["date_ru"] + '</span>\n'
@@ -183,7 +184,7 @@ def build_index(posts):
         + cards_html + '\n\n'
         '<div class="footer-cta">\n'
         '<h3>💼 Нужна помощь юриста?</h3>\n'
-        '<p>Составим иск, договор, консультацию — быстро и профессионально</p>\n'
+        '<p>Составим иск, договор, консультацию - быстро и профессионально</p>\n'
         '<div class="cta-buttons">\n'
         '<a href="https://t.me/ConsulLexbot" class="btn-bot" target="_blank" rel="noopener noreferrer">🤖 Написать боту</a>\n'
         '<a href="' + SITE_URL + '" class="btn-site" target="_blank">🌐 Перейти на сайт</a>\n'
